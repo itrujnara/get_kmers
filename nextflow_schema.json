@@ -38,6 +38,21 @@
                 }
             }
         },
+        "analysis_options": {
+            "title": "Analysis options",
+            "type": "object",
+            "fa_icon": "fas fa-cogs",
+            "description": "Options for the analysis steps in the pipeline.",
+            "properties": {
+                "kmer_size": {
+                    "type": "integer",
+                    "default": 5,
+                    "description": "Size of the kmer to be counted.",
+                    "help_text": "The size of the kmer to be counted. The default is 31.",
+                    "fa_icon": "fas fa-ruler"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -156,7 +171,9 @@
         {
             "$ref": "#/$defs/input_output_options"
         },
-        
+        {
+            "$ref": "#/$defs/analysis_options"
+        },
         {
             "$ref": "#/$defs/institutional_config_options"
         },
