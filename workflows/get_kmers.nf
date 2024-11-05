@@ -4,6 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { JELLYFISH_COUNT        } from '../modules/local/jellyfish/count'
+include { JELLYFISH_DUMP         } from '../modules/local/jellyfish/dump'
 
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 
@@ -20,10 +22,26 @@ workflow GET_KMERS {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+
     main:
 
     ch_versions = Channel.empty()
-    
+
+    JELLYFISH_COUNT (
+        ch_samplesheet,
+        params.kmer_size
+    )
+
+    ch_versions = ch_versions.mix(JELLYFISH_COUNT.out.versions)
+
+    JELLYFISH_DUMP (
+        JELLYFISH_COUNT.out.jf
+    )
+
+    ch_versions = ch_versions.mix(JELLYFISH_DUMP.out.versions)
+
+    JELLYFISH_DUMP.out.tsv.view()
+
 
     //
     // Collate and save software versions
