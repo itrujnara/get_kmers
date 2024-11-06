@@ -10,9 +10,10 @@ process JELLYFISH_DUMP {
 
     input:
     tuple val(meta), path(jf)
+    val kmer_size
 
     output:
-    tuple val(meta), path("*_kmers.tsv"), emit: tsv
+    tuple val(meta), path("*_*mers.tsv"), emit: tsv
     path "versions.yml"                 , emit: versions
 
     when:
@@ -20,14 +21,15 @@ process JELLYFISH_DUMP {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${kmer_size}mers"
     """
-    echo "${prefix}\tkmer" > ${prefix}_kmers.tsv
+    echo "kmer\t${meta.id}" > ${prefix}.tsv
     jellyfish dump ${jf} | \
         tr '\\n' '\\t' | \
         tr '>' '\\n' | \
         sed 's/\\t\$//g' | \
-        tail -n +2 >> ${prefix}_kmers.tsv
+        awk 'BEGIN {IFS="\\t"; OFS="\\t";} {print \$2,\$1}' | \
+        tail -n +2 >> ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -37,13 +39,13 @@ process JELLYFISH_DUMP {
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${kmer_size}mers"
     // TODO nf-core: A stub section should mimic the execution of the original module as best as possible
     //               Have a look at the following examples:
     //               Simple example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bcftools/annotate/main.nf#L47-L63
     //               Complex example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bedtools/split/main.nf#L38-L54
     """
-    touch ${prefix}_kmers.tsv
+    touch ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

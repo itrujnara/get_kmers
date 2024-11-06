@@ -21,7 +21,7 @@ process JELLYFISH_COUNT {
 
     script:
     def args   = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_${kmer_size}mers"
     def unzip  = genome ==~ /.*\.gz$/ ? 'zcat' : 'cat'
     """
     ${unzip} ${genome} |
